@@ -1,0 +1,84 @@
+name: Question
+description: Ask a question about usage, architecture, or integration
+title: '[Question]: '
+labels:
+  - question
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question? We are happy to help! 💬
+
+        > **Tip:** For quicker answers, try searching the [existing issues](https://github.com/azversan/mediasoup-module/issues?q=label%3Aquestion)
+        > and the [README](https://github.com/azversan/mediasoup-module#readme) first.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-flight checklist
+      options:
+        - label: I have searched existing issues and the README.
+          required: true
+        - label: This is not a bug report or feature request (those have dedicated templates).
+          required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Question category
+      options:
+        - Module setup & configuration
+        - MediasoupService API usage
+        - Event system & @OnMediasoup decorator
+        - Transports (WebRTC / Plain / Pipe / Direct)
+        - Producers & Consumers
+        - Data channels
+        - RTP Observers
+        - Worker / Router management
+        - Integration with other NestJS modules
+        - Scaling / multi-server deployments
+        - TypeScript types
+        - Testing my application with this module
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: package-version
+    attributes:
+      label: Package version
+      placeholder: 'e.g. 0.0.2-alpha.0'
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: Please be as specific as possible. Include code snippets if relevant.
+      placeholder: |
+        How do I share a single Router across multiple rooms? I want to avoid creating a new
+        Router per room when users join a small conference. Is there a recommended pattern for
+        this with `MediasoupService.getRouters()` or `getRoutersByWorkerPid()`?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: What have you already tried?
+      description: Share any relevant code, config, or research so we do not repeat suggestions you have already explored.
+      render: typescript
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment (optional)
+      description: Fill in if relevant to the question.
+      placeholder: |
+        Node.js version: v20.14.0
+        NestJS version: 11.0.5
+        mediasoup version: 3.19.22
+        OS: Ubuntu 22.04

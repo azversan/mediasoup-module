@@ -1,0 +1,114 @@
+name: Feature Request
+description: Propose a new feature or enhancement for @azversan/mediasoup
+title: '[Feature]: '
+labels:
+  - enhancement
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting an improvement! 🚀
+        Please provide enough context so maintainers can evaluate the request effectively.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-flight checklist
+      options:
+        - label: I have searched [existing issues](https://github.com/azversan/mediasoup-module/issues) and this feature has not already been requested.
+          required: true
+        - label: This feature is not already available in the current release or in a published pre-release.
+          required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Feature scope
+      description: Which part of the module does this feature relate to?
+      options:
+        - MediasoupService API
+        - ObserverService / Event system
+        - Module registration (register / registerAsync)
+        - WebRtcServer support
+        - Transport types
+        - Producer / Consumer
+        - Data channels (DataProducer / DataConsumer)
+        - RTP Observers (AudioLevelObserver / ActiveSpeakerObserver)
+        - AppData schemas / Telemetry
+        - TypeScript types / interfaces
+        - Testing utilities
+        - Documentation
+        - Build / Tooling
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: |
+        Describe the problem or limitation you are experiencing.
+        A good feature request usually starts from a real need — "I am trying to do X but cannot because Y."
+      placeholder: |
+        I am trying to implement server-side recording and I need to pipe media from a WebRtcTransport
+        to a PlainTransport. Currently there is no helper to do this without accessing the router directly,
+        which bypasses the module's internal telemetry.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: |
+        Describe the feature or change you would like to see. Be as specific as possible.
+        If you have a proposed API shape, include it here.
+      placeholder: |
+        Add a `pipeToRouter(sourceRouterId, targetRouterId, options)` helper method to `MediasoupService`
+        that wraps `router.pipeToRouter()` and keeps the internal store consistent.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you explored any workarounds or alternative approaches?
+      placeholder: |
+        I considered manually calling `router.pipeToRouter()` and tracking resources myself,
+        but this bypasses the module's resource store and breaks `getTransportsByRouterId()`.
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example usage (API sketch)
+      description: If applicable, show how you envision the new API would be used.
+      render: typescript
+      placeholder: |
+        const pipe = await mediasoupService.pipeToRouter({
+          producerId: producer.id,
+          sourceRouterId: roomRouter.id,
+          targetRouterId: recordingRouter.id,
+        });
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How important is this feature to you?
+      options:
+        - Critical — I am blocked without it
+        - High — Significantly improves my use case
+        - Medium — Nice to have
+        - Low — Minor convenience improvement
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I am willing to submit a pull request implementing this feature.

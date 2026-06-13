@@ -1,0 +1,96 @@
+name: Documentation
+description: Report missing, incorrect, or unclear documentation
+title: '[Docs]: '
+labels:
+  - documentation
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Good documentation matters! 📖
+        Help us improve by describing what is missing, incorrect, or confusing.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-flight checklist
+      options:
+        - label: I have checked the current [README](https://github.com/azversan/mediasoup-module#readme) and JSDoc comments.
+          required: true
+        - label: This issue has not already been reported.
+          required: true
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation area
+      options:
+        - README — Installation / Quick Start
+        - README — Module registration
+        - README — Configuration reference
+        - README — MediasoupService API
+        - README — Event system
+        - README — AppData schemas
+        - README — Architecture overview
+        - README — Examples
+        - JSDoc / inline code comments
+        - TypeScript types / interfaces
+        - CHANGELOG
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue type
+      options:
+        - Missing documentation (topic not covered at all)
+        - Incorrect documentation (contains errors or outdated info)
+        - Unclear documentation (hard to follow, needs better explanation)
+        - Missing example (concept is explained but no code example provided)
+        - Typo / grammar
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Location in documentation
+      description: Please provide a direct link or quote the section that needs attention.
+      placeholder: |
+        README.md → "Configuration Reference" table — the `workerCount` field description is missing.
+
+        Or: https://github.com/azversan/mediasoup-module/blob/main/README.md#configuration-reference
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Describe the problem
+      description: What is wrong, missing, or unclear?
+      placeholder: |
+        The Configuration Reference table lists `webRtcServer` as a required field but does not
+        explain the difference between `{ enable: true }` and `{ enable: false }` shapes, or what
+        happens to port offset allocation when multiple workers are used.
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+      description: What should the documentation say or include?
+      placeholder: |
+        Add a subsection explaining the port-offset strategy used when `webRtcServer.enable` is `true`,
+        with an example showing how `listenInfos` ports are derived per worker.
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I am willing to submit a pull request with the documentation fix.

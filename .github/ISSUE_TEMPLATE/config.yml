@@ -1,0 +1,22 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: 💬 Discussions
+    url: https://github.com/azversan/mediasoup-module/discussions
+    about: Questions, ideas, and community support.
+
+  - name: 📖 Documentation
+    url: https://github.com/azversan/mediasoup-module/wiki
+    about: Project documentation and guides.
+
+  - name: 📚 Mediasoup Docs
+    url: https://mediasoup.org/documentation/
+    about: Official mediasoup documentation.
+
+  - name: 🚀 NestJS Docs
+    url: https://docs.nestjs.com
+    about: Official NestJS documentation.
+
+  - name: 🔒 Report Security Vulnerability
+    url: https://github.com/azversan/mediasoup-module/security/advisories/new
+    about: Report security issues privately.

@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_call:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          # mediasoup requires Node >= v22
+          node-version: '22.x'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check formatting
+        run: npx prettier --check "src/**/*.ts"
+
+  test:
+    name: Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    needs: lint
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # mediasoup >= v3 requires Node.js >= v22.0.0
+        node-version: ['22.x', '24.x', '26.x']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # mediasoup tries to use a prebuilt worker binary first.
+      # build-essential + python3-pip are needed as fallback if no prebuilt exists for the current platform/arch.
+      # See: https://mediasoup.org/documentation/v3/mediasoup/installation/
+      - name: Install mediasoup build dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y build-essential python3-pip
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Upload coverage report
+        if: matrix.node-version == '22.x'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  build:
+    name: Build check
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install mediasoup build dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y build-essential python3-pip
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          # mediasoup requires Node >= v22
+          node-version: '22.x'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Verify dist output
+        run: |
+          test -f dist/index.js   || (echo "❌ dist/index.js missing"   && exit 1)
+          test -f dist/index.d.ts || (echo "❌ dist/index.d.ts missing" && exit 1)
+          test -f dist/index.mjs  || (echo "❌ dist/index.mjs missing"  && exit 1)
+          echo "✅ All dist artifacts present"
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 3

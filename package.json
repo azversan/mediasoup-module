@@ -1,0 +1,91 @@
+{
+  "name": "@azversan/mediasoup",
+  "version": "0.0.1",
+  "description": "NestJS integration module for mediasoup WebRTC SFU — manages Workers, Routers, Transports, Producers, Consumers, and RTP Observers with type-safe event observability via NestJS EventEmitter",
+  "author": "Agung Dirgantara <agungmasda29@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/azversan/mediasoup-module.git"
+  },
+  "homepage": "https://github.com/azversan/mediasoup-module",
+  "bugs": {
+    "url": "https://github.com/azversan/mediasoup-module/issues"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "build:watch": "tsup --watch",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "prettier --write --ignore-unknown",
+      "eslint --fix"
+    ],
+    "*.{json,yml,yaml}": [
+      "prettier --write --ignore-unknown"
+    ]
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^10.0.0 || ^11.0.0",
+    "@nestjs/core": "^10.0.0 || ^11.0.0",
+    "@nestjs/event-emitter": "^3.1.0",
+    "mediasoup": "^3.0.0",
+    "reflect-metadata": "^0.1.14 || ^0.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/event-emitter": "^3.1.0",
+    "@nestjs/testing": "^11.0.1",
+    "@swc/core": "^1.15.33",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
+    "globals": "^16.0.0",
+    "jest": "^30.4.2",
+    "mediasoup": "^3.19.22",
+    "prettier": "^3.4.2",
+    "reflect-metadata": "^0.2.2",
+    "ts-jest": "^29.4.9",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.0",
+    "typescript-eslint": "^8.20.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s",
+      "!**/index.ts"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1"
+    }
+  }
+}

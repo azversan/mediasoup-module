@@ -1,4 +1,3 @@
-import os from 'node:os';
 import { DynamicModule, Inject, Logger, Module, OnApplicationBootstrap, OnApplicationShutdown, Provider } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { observer, version } from 'mediasoup';
@@ -17,13 +16,13 @@ export class MediasoupModule implements OnApplicationBootstrap, OnApplicationShu
   ) {}
 
   async onApplicationBootstrap() {
-    const { workerSettings } = this.options;
-    const workerCount = workerSettings.workerCount ?? Math.max(1, os.cpus().length - 1);
-
     observer.on('newworker', this.onNewWorker);
+    const { workerSettings } = this.options;
 
-    for (let i = 0; i < workerCount; i++) {
-      await this.mediasoupService.createWorker();
+    if (workerSettings.workerCount) {
+      for (let i = 0; i < workerSettings.workerCount; i++) {
+        await this.mediasoupService.createWorker();
+      }
     }
 
     this.logger.log(`Mediasoup version ${version}`);

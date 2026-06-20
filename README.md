@@ -113,12 +113,6 @@
 npm install @azversan/mediasoup
 ```
 
-Ensure peer dependencies are installed:
-
-```bash
-npm install @nestjs/event-emitter mediasoup
-```
-
 ## Quick Start
 
 ```typescript

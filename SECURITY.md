@@ -6,7 +6,7 @@ Only the latest release of `@azversan/mediasoup` receives security updates.
 
 | Version          | Supported |
 | ---------------- | --------- |
-| `0.0.x` (latest) | ✅        |
+| `1.x.x` (latest) | ✅        |
 | Older versions   | ❌        |
 
 ---

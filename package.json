@@ -1,6 +1,6 @@
 {
   "name": "@azversan/mediasoup",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "NestJS integration module for mediasoup WebRTC SFU — manages Workers, Routers, Transports, Producers, Consumers, and RTP Observers with type-safe event observability via NestJS EventEmitter",
   "author": "Agung Dirgantara <agungmasda29@gmail.com>",
   "license": "MIT",

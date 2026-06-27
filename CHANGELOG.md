@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-06-28
+
+### Added
+
+- Added `transportDirections` constant for type-safe transport direction validation and reuse.
+
+### Changed
+
+- Refined `createWorker()` typings to prevent overriding the module-managed `workerCount` option.
+- Removed the unused `webRtcServer` property from `WorkerAppData`.
+
+### Documentation
+
+- Improved `README.md` formatting and navigation for the service API and event reference sections.
+
 ## [1.1.0] - 2026-06-21
 
 ### Changed

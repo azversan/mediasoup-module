@@ -68,7 +68,7 @@ export class MediasoupService {
    * @param settings - Configuration overrides for the underlying worker process.
    * @returns A promise that resolves to the newly initialized Worker instance.
    */
-  async createWorker(settings?: Omit<WorkerSettings, 'appData'>): Promise<Worker> {
+  async createWorker(settings?: Omit<WorkerSettings, 'appData' | 'workerCount'>): Promise<Worker> {
     const { webRtcServer, workerSettings } = this.options;
     const worker = await createWorker<WorkerAppData>({
       appData: {

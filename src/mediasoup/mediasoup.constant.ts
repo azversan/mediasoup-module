@@ -1,4 +1,5 @@
 import { types } from 'mediasoup';
+import { TransportDirection } from './mediasoup.interface';
 
 /**
  * Worker log tags
@@ -9,6 +10,11 @@ export const workerLogTags: types.WorkerLogTag[] = ['bwe', 'dtls', 'ice', 'info'
  * Worker log levels
  */
 export const workerLogLevels: types.WorkerLogLevel[] = ['debug', 'error', 'none', 'warn'];
+
+/**
+ * Transport directions
+ */
+export const transportDirections: TransportDirection[] = ['recv', 'send'];
 
 /**
  * Transport types

@@ -22,52 +22,15 @@
     - [`WorkerSettings` (extended)](#workersettings-extended)
   - [MediasoupService API](#mediasoupservice-api)
     - [Workers](#workers)
-      - [`createWorker(settings?)`](#createworkersettings)
-      - [`getWorkers(): Worker[]`](#getworkers-worker)
-      - [`getWorkerByPid(pid: number): Worker`](#getworkerbypidpid-number-worker)
-      - [`getWorkerByRouterId(id: RouterId): Worker`](#getworkerbyrouteridid-routerid-worker)
-      - [`getRoundRobinWorker(exceptPid?: number | number[]): Worker`](#getroundrobinworkerexceptpid-number--number-worker)
     - [WebRTC Servers](#webrtc-servers)
-      - [`getWebRtcServers(): WebRtcServer[]`](#getwebrtcservers-webrtcserver)
-      - [`getWebRtcServerById(id: WebRtcServerId): WebRtcServer`](#getwebrtcserverbyidid-webrtcserverid-webrtcserver)
-      - [`getWebRtcServersByWorkerPid(workerPid: number | number[]): WebRtcServer[]`](#getwebrtcserversbyworkerpidworkerpid-number--number-webrtcserver)
     - [Routers](#routers)
-      - [`createRouter(options?): Promise<Router>`](#createrouteroptions-promiserouter)
-      - [`getRouters(): Router[]`](#getrouters-router)
-      - [`getRouterById(id: RouterId): Router`](#getrouterbyidid-routerid-router)
-      - [`getRoutersByWorkerPid(workerPid: number): Router[]`](#getroutersbyworkerpidworkerpid-number-router)
     - [Transports](#transports)
-      - [`createWebRtcTransport(routerId, options?): Promise<WebRtcTransport>`](#createwebrtctransportrouterid-options-promisewebrtctransport)
-      - [`createPlainTransport(routerId, options?): Promise<PlainTransport>`](#createplaintransportrouterid-options-promiseplaintransport)
-      - [`createPipeTransport(routerId, options?): Promise<PipeTransport>`](#createpipetransportrouterid-options-promisepipetransport)
-      - [`createDirectTransport(routerId, options?): Promise<DirectTransport>`](#createdirecttransportrouterid-options-promisedirecttransport)
-      - [`getTransports(): Transport[]`](#gettransports-transport)
-      - [`getTransportById(id, type?)`](#gettransportbyidid-type)
-      - [`getTransportsByRouterId(id, type?)`](#gettransportsbyrouteridid-type)
     - [Producers \& Consumers](#producers--consumers)
-      - [`createProducer(transportId, kind, rtpParameters): Promise<Producer>`](#createproducertransportid-kind-rtpparameters-promiseproducer)
-      - [`createConsumer(transportId, producerId, rtpCapabilities): Promise<Consumer>`](#createconsumertransportid-producerid-rtpcapabilities-promiseconsumer)
-      - [Getters](#getters)
     - [Data Producers \& Data Consumers](#data-producers--data-consumers)
-      - [`createDataProducer(transportId, options?): Promise<DataProducer>`](#createdataproducertransportid-options-promisedataproducer)
-      - [`createDataConsumer(transportId, options): Promise<DataConsumer>`](#createdataconsumertransportid-options-promisedataconsumer)
-      - [Getters](#getters-1)
     - [RTP Observers](#rtp-observers)
-      - [`createActiveSpeakerObserver(routerId, interval?): Promise<ActiveSpeakerObserver>`](#createactivespeakerobserverrouterid-interval-promiseactivespeakerobserver)
-      - [`createAudioLevelObserver(routerId, options?): Promise<AudioLevelObserver>`](#createaudiolevelobserverrouterid-options-promiseaudiolevelobserver)
-      - [`getRtpObservers(type?)` / `getRtpObserverById(id)` / `getRtpObserversByRouter(routerId, type?)`](#getrtpobserverstype--getrtpobserverbyidid--getrtpobserversbyrouterrouterid-type)
   - [Event System](#event-system)
     - [Listening to Events](#listening-to-events)
     - [Event Reference](#event-reference)
-      - [Worker Events](#worker-events)
-      - [Router Events](#router-events)
-      - [Transport Events](#transport-events)
-      - [Consumer Events](#consumer-events)
-      - [Producer Events](#producer-events)
-      - [Data Consumer Events](#data-consumer-events)
-      - [Data Producer Events](#data-producer-events)
-      - [RTP Observer Events](#rtp-observer-events)
-      - [WebRTC Server Events](#webrtc-server-events)
   - [AppData Schemas](#appdata-schemas)
     - [`WorkerAppData`](#workerappdata)
     - [`RouterAppData`](#routerappdata)
@@ -273,7 +236,7 @@ constructor(private readonly mediasoup: MediasoupService) {}
 
 ### Workers
 
-#### `createWorker(settings?)`
+**`createWorker(settings?)`**
 
 Spawns a new mediasoup Worker process. If `webRtcServer.enable` is `true`, a `WebRtcServer` is automatically created on the worker.
 
@@ -281,19 +244,19 @@ Spawns a new mediasoup Worker process. If `webRtcServer.enable` is `true`, a `We
 const worker = await this.mediasoup.createWorker({ logLevel: 'debug' });
 ```
 
-#### `getWorkers(): Worker[]`
+**`getWorkers(): Worker[]`**
 
 Returns all active Workers.
 
-#### `getWorkerByPid(pid: number): Worker`
+**`getWorkerByPid(pid: number): Worker`**
 
 Finds a Worker by its OS Process ID. Throws `MediasoupException` if not found.
 
-#### `getWorkerByRouterId(id: RouterId): Worker`
+**`getWorkerByRouterId(id: RouterId): Worker`**
 
 Finds the Worker hosting a specific Router.
 
-#### `getRoundRobinWorker(exceptPid?: number | number[]): Worker`
+**`getRoundRobinWorker(exceptPid?: number | number[]): Worker`**
 
 Returns a Worker using round-robin load balancing. Optionally exclude specific PIDs.
 
@@ -307,21 +270,21 @@ const worker = this.mediasoup.getRoundRobinWorker([1234, 5678]);
 
 ### WebRTC Servers
 
-#### `getWebRtcServers(): WebRtcServer[]`
+**`getWebRtcServers(): WebRtcServer[]`**
 
 Returns all active `WebRtcServer` instances.
 
-#### `getWebRtcServerById(id: WebRtcServerId): WebRtcServer`
+**`getWebRtcServerById(id: WebRtcServerId): WebRtcServer`**
 
 Finds a `WebRtcServer` by ID. Throws if not found.
 
-#### `getWebRtcServersByWorkerPid(workerPid: number | number[]): WebRtcServer[]`
+**`getWebRtcServersByWorkerPid(workerPid: number | number[]): WebRtcServer[]`**
 
 Returns all `WebRtcServer` instances belonging to specified Worker PID(s).
 
 ### Routers
 
-#### `createRouter(options?): Promise<Router>`
+**`createRouter(options?): Promise<Router>`**
 
 Creates a Router. Uses round-robin Worker selection by default.
 
@@ -341,15 +304,15 @@ const router = await this.mediasoup.createRouter({
 });
 ```
 
-#### `getRouters(): Router[]`
+**`getRouters(): Router[]`**
 
 Returns all active Routers.
 
-#### `getRouterById(id: RouterId): Router`
+**`getRouterById(id: RouterId): Router`**
 
 Finds a Router by ID. Throws if not found.
 
-#### `getRoutersByWorkerPid(workerPid: number): Router[]`
+**`getRoutersByWorkerPid(workerPid: number): Router[]`**
 
 Returns all Routers on a specific Worker.
 
@@ -357,7 +320,7 @@ Returns all Routers on a specific Worker.
 
 All transport creation methods merge module-level defaults with per-call overrides. The `appData` field is managed internally and should not be supplied.
 
-#### `createWebRtcTransport(routerId, options?): Promise<WebRtcTransport>`
+**`createWebRtcTransport(routerId, options?): Promise<WebRtcTransport>`**
 
 ```typescript
 const transport = await this.mediasoup.createWebRtcTransport(router.id, {
@@ -368,23 +331,23 @@ const transport = await this.mediasoup.createWebRtcTransport(router.id, {
 });
 ```
 
-#### `createPlainTransport(routerId, options?): Promise<PlainTransport>`
+**`createPlainTransport(routerId, options?): Promise<PlainTransport>`**
 
 For RTP/RTCP-based integrations (e.g. FFmpeg, GStreamer, SIP gateways).
 
-#### `createPipeTransport(routerId, options?): Promise<PipeTransport>`
+**`createPipeTransport(routerId, options?): Promise<PipeTransport>`**
 
 For piping media between Routers (e.g. across different Workers or servers).
 
-#### `createDirectTransport(routerId, options?): Promise<DirectTransport>`
+**`createDirectTransport(routerId, options?): Promise<DirectTransport>`**
 
 For intra-process media relaying without network overhead.
 
-#### `getTransports(): Transport[]`
+**`getTransports(): Transport[]`**
 
 Returns all active Transports.
 
-#### `getTransportById(id, type?)`
+**`getTransportById(id, type?)`**
 
 ```typescript
 // Generic base type
@@ -399,13 +362,13 @@ const direct = this.mediasoup.getTransportById(id, 'direct'); // DirectTransport
 
 Throws `MediasoupException` if not found or type mismatch.
 
-#### `getTransportsByRouterId(id, type?)`
+**`getTransportsByRouterId(id, type?)`**
 
 Returns all transports on a Router, optionally filtered by type.
 
 ### Producers & Consumers
 
-#### `createProducer(transportId, kind, rtpParameters): Promise<Producer>`
+**`createProducer(transportId, kind, rtpParameters): Promise<Producer>`**
 
 Sets the transport's `appData.direction` to `'send'`.
 
@@ -413,7 +376,7 @@ Sets the transport's `appData.direction` to `'send'`.
 const producer = await this.mediasoup.createProducer(transportId, 'video', rtpParameters);
 ```
 
-#### `createConsumer(transportId, producerId, rtpCapabilities): Promise<Consumer>`
+**`createConsumer(transportId, producerId, rtpCapabilities): **Promise<Consumer>`
 
 Sets the transport's `appData.direction` to `'recv'`. Validates codec compatibility first.
 
@@ -421,7 +384,7 @@ Sets the transport's `appData.direction` to `'recv'`. Validates codec compatibil
 const consumer = await this.mediasoup.createConsumer(transportId, producerId, peerRtpCapabilities);
 ```
 
-#### Getters
+**Getters**
 
 ```typescript
 this.mediasoup.getProducers(): Producer[]
@@ -432,11 +395,11 @@ this.mediasoup.getConsumerById(id: string): Consumer
 
 ### Data Producers & Data Consumers
 
-#### `createDataProducer(transportId, options?): Promise<DataProducer>`
+**`createDataProducer(transportId, options?): Promise<DataProducer>`**
 
-#### `createDataConsumer(transportId, options): Promise<DataConsumer>`
+**`createDataConsumer(transportId, options): Promise<DataConsumer>`**
 
-#### Getters
+**Getters**
 
 ```typescript
 this.mediasoup.getDataProducers(): DataProducer[]
@@ -447,7 +410,7 @@ this.mediasoup.getDataConsumerById(id: DataConsumerId): DataConsumer
 
 ### RTP Observers
 
-#### `createActiveSpeakerObserver(routerId, interval?): Promise<ActiveSpeakerObserver>`
+**`createActiveSpeakerObserver(routerId, interval?): **Promise<ActiveSpeakerObserver>`
 
 Monitors audio streams to detect the dominant speaker.
 
@@ -455,7 +418,7 @@ Monitors audio streams to detect the dominant speaker.
 const observer = await this.mediasoup.createActiveSpeakerObserver(router.id, 300);
 ```
 
-#### `createAudioLevelObserver(routerId, options?): Promise<AudioLevelObserver>`
+**`createAudioLevelObserver(routerId, options?): Promise<AudioLevelObserver>`**
 
 Reports per-producer audio volume levels.
 
@@ -467,7 +430,7 @@ const observer = await this.mediasoup.createAudioLevelObserver(router.id, {
 });
 ```
 
-#### `getRtpObservers(type?)` / `getRtpObserverById(id)` / `getRtpObserversByRouter(routerId, type?)`
+**`getRtpObservers(type?)` / `getRtpObserverById(id)` / **`getRtpObserversByRouter(routerId, type?)`
 
 ```typescript
 // All observers
@@ -519,7 +482,7 @@ export class MediaEventsService {
 
 ### Event Reference
 
-#### Worker Events
+**Worker Events**
 
 | Event                         | Payload                                  |
 | ----------------------------- | ---------------------------------------- |
@@ -530,7 +493,7 @@ export class MediaEventsService {
 | `WorkerListenerError`         | `{ pid, data: { event, error } }`        |
 | `WorkerResourceUsageAdjusted` | `{ pid, data: { action, type, count } }` |
 
-#### Router Events
+**Router Events**
 
 | Event                         | Payload                                 |
 | ----------------------------- | --------------------------------------- |
@@ -540,7 +503,7 @@ export class MediaEventsService {
 | `RouterListenerError`         | `{ id, data: { event, error } }`        |
 | `RouterResourceUsageAdjusted` | `{ id, data: { action, type, count } }` |
 
-#### Transport Events
+**Transport Events**
 
 | Event                           | Payload                                 |
 | ------------------------------- | --------------------------------------- |
@@ -559,7 +522,7 @@ export class MediaEventsService {
 | `PipeTransportSctpStateChange`  | `{ id, data: SctpState }`               |
 | `DirectTransportRtcp`           | `{ id, data: Buffer }`                  |
 
-#### Consumer Events
+**Consumer Events**
 
 | Event                                              | Payload                                     |
 | -------------------------------------------------- | ------------------------------------------- |
@@ -574,7 +537,7 @@ export class MediaEventsService {
 | `ConsumerTrace`                                    | `{ id, data: ConsumerTraceEventData }`      |
 | `ConsumerRtp`                                      | `{ id, data: Buffer }`                      |
 
-#### Producer Events
+**Producer Events**
 
 | Event                              | Payload                                  |
 | ---------------------------------- | ---------------------------------------- |
@@ -586,7 +549,7 @@ export class MediaEventsService {
 | `ProducerTrace`                    | `{ id, data: ProducerTraceEventData }`   |
 | `ProducerVideoOrientationChange`   | `{ id, data: ProducerVideoOrientation }` |
 
-#### Data Consumer Events
+**Data Consumer Events**
 
 | Event                                      | Payload                                           |
 | ------------------------------------------ | ------------------------------------------------- |
@@ -597,7 +560,7 @@ export class MediaEventsService {
 | `DataConsumerSctpSendBufferFull`           | `{ id }`                                          |
 | `DataConsumerBufferedAmountLow`            | `{ id, data: number }`                            |
 
-#### Data Producer Events
+**Data Producer Events**
 
 | Event                                      | Payload  |
 | ------------------------------------------ | -------- |
@@ -606,7 +569,7 @@ export class MediaEventsService {
 | `DataProducerPause` / `DataProducerResume` | `{ id }` |
 | `DataProducerTransportClose`               | `{ id }` |
 
-#### RTP Observer Events
+**RTP Observer Events**
 
 | Event                                    | Payload                                              |
 | ---------------------------------------- | ---------------------------------------------------- |
@@ -617,7 +580,7 @@ export class MediaEventsService {
 | `RtpObserverVolumes`                     | `{ id, data: AudioLevelObserverVolume[] }`           |
 | `RtpObserverDominantSpeaker`             | `{ id, data: ActiveSpeakerObserverDominantSpeaker }` |
 
-#### WebRTC Server Events
+**WebRTC Server Events**
 
 | Event                            | Payload                         |
 | -------------------------------- | ------------------------------- |

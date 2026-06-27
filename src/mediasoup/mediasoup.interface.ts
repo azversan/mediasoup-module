@@ -104,7 +104,6 @@ export type RouterResourceAppData = {
 export type WorkerAppData = {
   count: Omit<ResourceCount, 'webRtcServers'>;
   timestamp: number;
-  webRtcServer?: types.WebRtcServer;
 };
 
 export type WebRtcServerAppData = {

@@ -24,15 +24,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           # mediasoup requires Node >= v22
           node-version: '22.x'
-          cache: npm
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run ESLint
         run: npm run lint
@@ -55,6 +58,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       # mediasoup tries to use a prebuilt worker binary first.
       # build-essential + python3-pip are needed as fallback if no prebuilt exists for the current platform/arch.
       # See: https://mediasoup.org/documentation/v3/mediasoup/installation/
@@ -67,10 +73,10 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-          cache: npm
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests
         run: npm test
@@ -92,6 +98,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Install mediasoup build dependencies
         run: |
           sudo apt-get update -y
@@ -102,10 +111,10 @@ jobs:
         with:
           # mediasoup requires Node >= v22
           node-version: '22.x'
-          cache: npm
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build package
         run: npm run build

@@ -57,7 +57,7 @@
     "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
-    "globals": "^16.0.0",
+    "globals": "^17.8.0",
     "jest": "^30.4.2",
     "mediasoup": "^3.19.22",
     "prettier": "^3.4.2",

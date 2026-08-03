@@ -316,7 +316,8 @@ export class MediasoupService {
     const router = this.getRouterById(routerId);
     const appData = this.initTransportAppData(routerId);
     const options: DirectTransportOptions = {
-      maxMessageSize: 262144,
+      maxSendMessageSize: 262144,
+      maxReceiveMessageSize: 262144,
       ...this.options.directTransportOptions,
       ...transportOptions,
       appData: {

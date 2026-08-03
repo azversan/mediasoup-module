@@ -1,0 +1,57 @@
+version: 2
+
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    target-branch: 'develop'
+
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '08:00'
+      timezone: 'Asia/Jakarta'
+
+    open-pull-requests-limit: 5
+
+    labels:
+      - 'dependencies'
+
+    commit-message:
+      prefix: 'chore(deps)'
+
+    groups:
+      nestjs:
+        patterns:
+          - '@nestjs/*'
+
+      testing:
+        patterns:
+          - 'jest'
+          - '@types/jest'
+          - 'ts-jest'
+
+      typescript:
+        patterns:
+          - 'typescript'
+          - 'typescript-eslint'
+          - '@types/*'
+
+      linting:
+        patterns:
+          - 'eslint'
+          - '@eslint/*'
+          - 'eslint-*'
+          - 'prettier'
+
+      build:
+        patterns:
+          - 'tsup'
+          - '@swc/*'
+
+      mediasoup:
+        patterns:
+          - 'mediasoup'
+
+      misc:
+        patterns:
+          - '*'

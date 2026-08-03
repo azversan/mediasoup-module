@@ -63,7 +63,7 @@
 
 | Dependency              | Version                |
 | ----------------------- | ---------------------- |
-| Node.js                 | >= 16                  |
+| Node.js                 | >= 22                  |
 | `@nestjs/common`        | `^10.0.0` or `^11.0.0` |
 | `@nestjs/core`          | `^10.0.0` or `^11.0.0` |
 | `@nestjs/event-emitter` | `^3.1.0`               |

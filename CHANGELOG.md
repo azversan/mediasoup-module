@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-08-03
+
+### Fixed
+
+- Corrected `DirectTransport` message size configuration to use the appropriate Mediasoup options.
+
+### Changed
+
+- Migrated the project from **npm** to **pnpm**.
+- Updated the CI workflow to use **pnpm** for dependency installation and caching.
+
+### Added
+
+- Added unit tests for `ObserverService`.
+- Expanded `MediasoupService` unit test coverage.
+- Added a Dependabot configuration for automated dependency update pull requests.
+
+### Documentation
+
+- Updated the Node.js version requirement to **Node.js 22 or later**.
+
 ## [1.2.0] - 2026-06-28
 
 ### Added

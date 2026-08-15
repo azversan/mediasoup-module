@@ -5,6 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![NestJS](https://img.shields.io/badge/NestJS-%5E10%20%7C%7C%20%5E11-red)](https://nestjs.com)
 [![mediasoup](https://img.shields.io/badge/mediasoup-%5E3.0.0-blue)](https://mediasoup.org)
+[![npm version](https://img.shields.io/npm/v/@azversan/mediasoup.svg)](https://www.npmjs.com/package/@azversan/mediasoup)
+[![npm downloads](https://img.shields.io/npm/dm/@azversan/mediasoup.svg)](https://www.npmjs.com/package/@azversan/mediasoup)
 
 ---
 

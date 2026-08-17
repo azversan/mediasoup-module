@@ -49,7 +49,7 @@ importers:
         version: 30.4.2(@types/node@26.2.0)(supports-color@11.0.0)
       mediasoup:
         specifier: ^3.19.22
-        version: 3.24.1
+        version: 3.24.2
       prettier:
         specifier: ^3.4.2
         version: 3.9.6
@@ -1902,8 +1902,8 @@ packages:
   makeerror@1.0.12:
     resolution: {integrity: sha512-JmqCvUhmt43madlpFzG4BQzG2Z3m6tvQDNKdClZnO3VbIudJYmxsT0FNJMeiB2+JTSlTQTSbU8QdesVmwJcmLg==}
 
-  mediasoup@3.24.1:
-    resolution: {integrity: sha512-uJkzr9yB3iritzHqKaMGr9maQUvw06GNeKWrd7o8NaBu5O2t9nyeXSLGbq7mFDLsM0c9GIjopgndKh+WE/pjXg==}
+  mediasoup@3.24.2:
+    resolution: {integrity: sha512-Tf3hTHRvYiVLlHFt5vozcS4e6bR2lu8AUuV3NhQ3HmTNt9AU8HLQHWqwA350YUMpdvjfgHLcIZckUmoFlzxq5w==}
     engines: {node: '>=22'}
 
   merge-stream@2.0.0:
@@ -4386,7 +4386,7 @@ snapshots:
     dependencies:
       tmpl: 1.0.5
 
-  mediasoup@3.24.1:
+  mediasoup@3.24.2:
     dependencies:
       debug: 4.4.3(supports-color@11.0.0)
       flatbuffers: 25.9.23

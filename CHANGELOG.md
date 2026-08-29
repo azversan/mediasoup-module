@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0]
+
+### Added
+
+- Added an optional `exceptionFactory` field to `MediasoupModuleOptions`, allowing consumers to transform every `MediasoupException` thrown by `MediasoupService` before it reaches their code (e.g. to map it into a NestJS `HttpException`).
+- Added an `Error Handling` section to the README documenting the new exception-wrapping behavior.
+
+### Changed
+
+- All `MediasoupService.create*` methods (`createWorker`, `createRouter`, transport/consumer/producer/data-channel/RTP-observer creators) now normalize failures into a `MediasoupException` instead of letting native mediasoup errors propagate unwrapped. The original error remains accessible via `.cause`. Errors that are already a `MediasoupException` (e.g. from internal `getXById` lookups) are passed through unchanged and never double-wrapped.
+
 ## [1.2.1] - 2026-08-03
 
 ### Fixed

@@ -23,6 +23,7 @@
     - [`MediasoupModuleOptions`](#mediasoupmoduleoptions)
     - [`WorkerSettings` (extended)](#workersettings-extended)
   - [MediasoupService API](#mediasoupservice-api)
+    - [Error Handling](#error-handling)
     - [Workers](#workers)
     - [WebRTC Servers](#webrtc-servers)
     - [Routers](#routers)
@@ -207,18 +208,19 @@ MediasoupModule.registerAsync({
 
 ### `MediasoupModuleOptions`
 
-| Field                    | Type                                                                    | Required | Description                                                                                                           |
-| ------------------------ | ----------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
-| `workerSettings`         | `WorkerSettings`                                                        | ✅       | Settings passed to `mediasoup.createWorker()`. Includes optional `workerCount` (defaults to `Math.max(1, cpus - 1)`). |
-| `mediaCodecs`            | `RouterRtpCodecCapability[]`                                            | ❌       | Default media codecs for all routers created via `createRouter()`.                                                    |
-| `webRtcServer`           | `{ enable: true; options: WebRtcServerOptions }` or `{ enable: false }` | ✅       | If enabled, a `WebRtcServer` is created per worker on bootstrap using port-offset strategy.                           |
-| `webRtcTransportOptions` | `Omit<WebRtcTransportOptions, 'appData'>`                               | ❌       | Default options merged into every `createWebRtcTransport()` call.                                                     |
-| `plainTransportOptions`  | `Omit<PlainTransportOptions, 'appData'>`                                | ❌       | Default options for `createPlainTransport()`.                                                                         |
-| `pipeTransportOptions`   | `Omit<PipeTransportOptions, 'appData'>`                                 | ❌       | Default options for `createPipeTransport()`.                                                                          |
-| `directTransportOptions` | `Omit<DirectTransportOptions, 'appData'>`                               | ❌       | Default options for `createDirectTransport()`.                                                                        |
-| `transportTrace`         | `{ enable: boolean; events: TransportTraceEventType[] }`                | ❌       | Enable trace events on all new transports.                                                                            |
-| `consumerTrace`          | `{ enable: boolean; events: ConsumerTraceEventType[] }`                 | ❌       | Enable trace events on all new consumers.                                                                             |
-| `producerTrace`          | `{ enable: boolean; events: ProducerTraceEventType[] }`                 | ❌       | Enable trace events on all new producers.                                                                             |
+| Field                    | Type                                                                    | Required | Description                                                                                                                                           |
+| ------------------------ | ----------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `workerSettings`         | `WorkerSettings`                                                        | ✅       | Settings passed to `mediasoup.createWorker()`. Includes optional `workerCount` (defaults to `Math.max(1, cpus - 1)`).                                 |
+| `mediaCodecs`            | `RouterRtpCodecCapability[]`                                            | ❌       | Default media codecs for all routers created via `createRouter()`.                                                                                    |
+| `webRtcServer`           | `{ enable: true; options: WebRtcServerOptions }` or `{ enable: false }` | ✅       | If enabled, a `WebRtcServer` is created per worker on bootstrap using port-offset strategy.                                                           |
+| `webRtcTransportOptions` | `Omit<WebRtcTransportOptions, 'appData'>`                               | ❌       | Default options merged into every `createWebRtcTransport()` call.                                                                                     |
+| `plainTransportOptions`  | `Omit<PlainTransportOptions, 'appData'>`                                | ❌       | Default options for `createPlainTransport()`.                                                                                                         |
+| `pipeTransportOptions`   | `Omit<PipeTransportOptions, 'appData'>`                                 | ❌       | Default options for `createPipeTransport()`.                                                                                                          |
+| `directTransportOptions` | `Omit<DirectTransportOptions, 'appData'>`                               | ❌       | Default options for `createDirectTransport()`.                                                                                                        |
+| `transportTrace`         | `{ enable: boolean; events: TransportTraceEventType[] }`                | ❌       | Enable trace events on all new transports.                                                                                                            |
+| `consumerTrace`          | `{ enable: boolean; events: ConsumerTraceEventType[] }`                 | ❌       | Enable trace events on all new consumers.                                                                                                             |
+| `producerTrace`          | `{ enable: boolean; events: ProducerTraceEventType[] }`                 | ❌       | Enable trace events on all new producers.                                                                                                             |
+| `exceptionFactory`       | `(exception: MediasoupException) => Error`                              | ❌       | Transforms every `MediasoupException` thrown by `MediasoupService` before it reaches the caller. Defaults to throwing the `MediasoupException` as-is. |
 
 ### `WorkerSettings` (extended)
 
@@ -234,6 +236,33 @@ Inject `MediasoupService` into any provider to access the full mediasoup resourc
 
 ```typescript
 constructor(private readonly mediasoup: MediasoupService) {}
+```
+
+### Error Handling
+
+Every `create*` method (`createWorker`, `createRouter`, `createWebRtcTransport`, `createConsumer`, etc.) normalizes failures into a **`MediasoupException`**:
+
+- If the underlying native mediasoup call fails (e.g. invalid codec, worker crash), the original error is wrapped into a `MediasoupException` with a descriptive message. The original error remains accessible via `.cause`.
+- If a `MediasoupException` is already thrown internally (e.g. a `getRouterById` lookup failing because the router doesn't exist), it is passed through unchanged — never double-wrapped.
+
+```typescript
+try {
+  await this.mediasoup.createRouter({ worker: someClosedWorker });
+} catch (error) {
+  if (error instanceof MediasoupException) {
+    console.error(error.message); // e.g. "Failed to create router"
+    console.error(error.cause); // the original native error, if any
+  }
+}
+```
+
+To transform exceptions before they reach your code (e.g. to map them into a NestJS `HttpException`), provide an `exceptionFactory` in the module options:
+
+```typescript
+MediasoupModule.register({
+  // ...
+  exceptionFactory: (exception) => new BadRequestException(exception.message),
+});
 ```
 
 ### Workers

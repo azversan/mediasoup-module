@@ -321,6 +321,17 @@ export interface MediasoupModuleOptions {
     enable: boolean;
     events: types.ProducerTraceEventType[];
   };
+  /**
+   * Optional hook to transform every `MediasoupException` thrown by `MediasoupService`
+   * before it reaches the caller (e.g. to attach custom error codes, translate messages,
+   * or map into a domain-specific exception used elsewhere in your app).
+   *
+   * If omitted, the raw `MediasoupException` is thrown as-is.
+   *
+   * @example
+   * exceptionFactory: (exception) => new BadRequestException(exception.message)
+   */
+  exceptionFactory?: MediasoupExceptionFactory;
 }
 
 export interface MediasoupOptionsFactory {

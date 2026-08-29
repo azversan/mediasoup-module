@@ -60,6 +60,31 @@ export class MediasoupService {
     @Inject(MediasoupToken.MODULE_OPTIONS) private options: MediasoupModuleOptions,
   ) {}
 
+  /**
+   * Runs an async operation and normalizes any failure into a `MediasoupException`
+   * (or the result of `options.exceptionFactory`, if provided).
+   *
+   * - If the thrown error is already a `MediasoupException` (e.g. raised by an internal
+   *   `getXById` lookup such as `getRouterById`), it is passed straight to the factory
+   *   without re-wrapping, so the original message/cause is preserved.
+   * - Any other error (native mediasoup/worker binding failures, etc.) is wrapped with
+   *   `message` and the original error kept as `cause`.
+   *
+   * @param fn - The operation to execute.
+   * @param message - Human-readable context used when wrapping a non-MediasoupException error.
+   * @returns The resolved value of `fn`.
+   * @throws {MediasoupException} Or the error returned by `options.exceptionFactory`.
+   */
+  private async safeCall<T>(fn: () => Promise<T>, message: string): Promise<T> {
+    try {
+      return await fn();
+    } catch (error) {
+      const exception = error instanceof MediasoupException ? error : new MediasoupException(message, error);
+
+      throw this.options.exceptionFactory ? (this.options.exceptionFactory as (exc: MediasoupException) => Error)(exception) : exception;
+    }
+  }
+
   //#region Worker
 
   /**
@@ -69,41 +94,43 @@ export class MediasoupService {
    * @returns A promise that resolves to the newly initialized Worker instance.
    */
   async createWorker(settings?: Omit<WorkerSettings, 'appData' | 'workerCount'>): Promise<Worker> {
-    const { webRtcServer, workerSettings } = this.options;
-    const worker = await createWorker<WorkerAppData>({
-      appData: {
-        count: {
-          routers: 0,
-          consumers: 0,
-          producers: 0,
-          transports: 0,
-          rtpObservers: 0,
-          dataConsumers: 0,
-          dataProducers: 0,
-        },
-        timestamp: Date.now(),
-      },
-      ...workerSettings,
-      ...settings,
-    });
-
-    if (webRtcServer.enable) {
-      const portOffset = this.store.workers.size - 1;
-      const listenInfos = webRtcServer.options.listenInfos.map((info) => ({
-        ...info,
-        port: info.port ? info.port + portOffset : undefined,
-      }));
-
-      await worker.createWebRtcServer<WebRtcServerAppData>({
-        listenInfos,
+    return this.safeCall(async () => {
+      const { webRtcServer, workerSettings } = this.options;
+      const worker = await createWorker<WorkerAppData>({
         appData: {
+          count: {
+            routers: 0,
+            consumers: 0,
+            producers: 0,
+            transports: 0,
+            rtpObservers: 0,
+            dataConsumers: 0,
+            dataProducers: 0,
+          },
           timestamp: Date.now(),
-          workerPid: worker.pid,
         },
+        ...workerSettings,
+        ...settings,
       });
-    }
 
-    return worker;
+      if (webRtcServer.enable) {
+        const portOffset = this.store.workers.size - 1;
+        const listenInfos = webRtcServer.options.listenInfos.map((info) => ({
+          ...info,
+          port: info.port ? info.port + portOffset : undefined,
+        }));
+
+        await worker.createWebRtcServer<WebRtcServerAppData>({
+          listenInfos,
+          appData: {
+            timestamp: Date.now(),
+            workerPid: worker.pid,
+          },
+        });
+      }
+
+      return worker;
+    }, 'Failed to create worker');
   }
 
   /**
@@ -231,25 +258,27 @@ export class MediasoupService {
    * @returns A promise that resolves to the newly generated Router instance.
    */
   async createRouter(options?: Omit<RouterOptions, 'appData'>): Promise<Router> {
-    const { mediaCodecs } = this.options;
-    const worker = options?.worker || this.getRoundRobinWorker(options?.exceptWorkerPid);
-    const router = await worker.createRouter({
-      appData: {
-        count: {
-          consumers: 0,
-          producers: 0,
-          transports: 0,
-          rtpObservers: 0,
-          dataConsumers: 0,
-          dataProducers: 0,
+    return this.safeCall(async () => {
+      const { mediaCodecs } = this.options;
+      const worker = options?.worker || this.getRoundRobinWorker(options?.exceptWorkerPid);
+      const router = await worker.createRouter({
+        appData: {
+          count: {
+            consumers: 0,
+            producers: 0,
+            transports: 0,
+            rtpObservers: 0,
+            dataConsumers: 0,
+            dataProducers: 0,
+          },
+          timestamp: Date.now(),
+          workerPid: worker.pid,
         },
-        timestamp: Date.now(),
-        workerPid: worker.pid,
-      },
-      mediaCodecs: options?.mediaCodecs ?? mediaCodecs,
-    });
+        mediaCodecs: options?.mediaCodecs ?? mediaCodecs,
+      });
 
-    return router;
+      return router;
+    }, 'Failed to create router');
   }
 
   /**
@@ -313,21 +342,23 @@ export class MediasoupService {
    * @returns A promise that resolves to the DirectTransport instance.
    */
   async createDirectTransport(routerId: RouterId, transportOptions?: DirectTransportOptions): Promise<DirectTransport> {
-    const router = this.getRouterById(routerId);
-    const appData = this.initTransportAppData(routerId);
-    const options: DirectTransportOptions = {
-      maxSendMessageSize: 262144,
-      maxReceiveMessageSize: 262144,
-      ...this.options.directTransportOptions,
-      ...transportOptions,
-      appData: {
-        ...appData,
-        ...transportOptions?.appData,
-      },
-    };
-    const transport = await router.createDirectTransport<TransportAppData>(options);
+    return this.safeCall(async () => {
+      const router = this.getRouterById(routerId);
+      const appData = this.initTransportAppData(routerId);
+      const options: DirectTransportOptions = {
+        maxSendMessageSize: 262144,
+        maxReceiveMessageSize: 262144,
+        ...this.options.directTransportOptions,
+        ...transportOptions,
+        appData: {
+          ...appData,
+          ...transportOptions?.appData,
+        },
+      };
+      const transport = await router.createDirectTransport<TransportAppData>(options);
 
-    return transport;
+      return transport;
+    }, 'Failed to create direct transport');
   }
 
   /**
@@ -337,19 +368,21 @@ export class MediasoupService {
    * @returns A promise that resolves to the PipeTransport instance.
    */
   async createPipeTransport(routerId: RouterId, transportOptions?: PipeTransportOptions): Promise<PipeTransport> {
-    const router = this.getRouterById(routerId);
-    const appData = this.initTransportAppData(routerId);
-    const options = {
-      ...this.options.pipeTransportOptions,
-      ...transportOptions,
-      appData: {
-        ...appData,
-        ...transportOptions?.appData,
-      },
-    } as PipeTransportOptions;
-    const transport = await router.createPipeTransport<TransportAppData>(options);
+    return this.safeCall(async () => {
+      const router = this.getRouterById(routerId);
+      const appData = this.initTransportAppData(routerId);
+      const options = {
+        ...this.options.pipeTransportOptions,
+        ...transportOptions,
+        appData: {
+          ...appData,
+          ...transportOptions?.appData,
+        },
+      } as PipeTransportOptions;
+      const transport = await router.createPipeTransport<TransportAppData>(options);
 
-    return transport;
+      return transport;
+    }, 'Failed to create pipe transport');
   }
 
   /**
@@ -359,19 +392,21 @@ export class MediasoupService {
    * @returns A promise that resolves to the raw PlainTransport instance.
    */
   async createPlainTransport(routerId: RouterId, transportOptions?: PlainTransportOptions) {
-    const router = this.getRouterById(routerId);
-    const appData = this.initTransportAppData(routerId);
-    const options = {
-      ...this.options.plainTransportOptions,
-      ...transportOptions,
-      appData: {
-        ...appData,
-        ...transportOptions?.appData,
-      },
-    } as PlainTransportOptions;
-    const transport = await router.createPlainTransport<TransportAppData>(options);
+    return this.safeCall(async () => {
+      const router = this.getRouterById(routerId);
+      const appData = this.initTransportAppData(routerId);
+      const options = {
+        ...this.options.plainTransportOptions,
+        ...transportOptions,
+        appData: {
+          ...appData,
+          ...transportOptions?.appData,
+        },
+      } as PlainTransportOptions;
+      const transport = await router.createPlainTransport<TransportAppData>(options);
 
-    return transport;
+      return transport;
+    }, 'Failed to create plain transport');
   }
 
   /**
@@ -381,19 +416,21 @@ export class MediasoupService {
    * @returns A promise that resolves to the WebRtcTransport endpoint instance.
    */
   async createWebRtcTransport(routerId: RouterId, transportOptions?: WebRtcTransportOptions): Promise<WebRtcTransport> {
-    const router = this.getRouterById(routerId);
-    const appData = this.initTransportAppData(routerId);
-    const options = {
-      ...this.options.webRtcTransportOptions,
-      ...transportOptions,
-      appData: {
-        ...appData,
-        ...transportOptions?.appData,
-      },
-    } as WebRtcTransportOptions;
-    const transport = await router.createWebRtcTransport(options);
+    return this.safeCall(async () => {
+      const router = this.getRouterById(routerId);
+      const appData = this.initTransportAppData(routerId);
+      const options = {
+        ...this.options.webRtcTransportOptions,
+        ...transportOptions,
+        appData: {
+          ...appData,
+          ...transportOptions?.appData,
+        },
+      } as WebRtcTransportOptions;
+      const transport = await router.createWebRtcTransport(options);
 
-    return transport;
+      return transport;
+    }, 'Failed to create webrtc transport');
   }
 
   /**
@@ -473,27 +510,29 @@ export class MediasoupService {
    * @returns A promise that resolves to the initialized downlink Consumer instance.
    */
   async createConsumer(transportId: TransportId, producerId: ProducerId, rtpCapabilities: types.RtpCapabilities): Promise<Consumer> {
-    const transport = this.getTransportById(transportId);
-    const { appData } = transport;
-    const router = this.getRouterById(appData.routerId);
-    const canConsume = router.canConsume({ producerId, rtpCapabilities });
+    return this.safeCall(async () => {
+      const transport = this.getTransportById(transportId);
+      const { appData } = transport;
+      const router = this.getRouterById(appData.routerId);
+      const canConsume = router.canConsume({ producerId, rtpCapabilities });
 
-    if (!canConsume) {
-      throw new MediasoupException(`Router cannot consume producer ${producerId} with given rtpCapabilities`);
-    }
+      if (!canConsume) {
+        throw new MediasoupException(`Router cannot consume producer ${producerId} with given rtpCapabilities`);
+      }
 
-    const consumer = await transport.consume<ConsumerProducerAppData>({
-      appData: {
-        routerId: appData.routerId,
-        timestamp: Date.now(),
-        transportId,
-      },
-      producerId,
-      rtpCapabilities,
-    });
-    transport.appData.direction = 'recv';
+      const consumer = await transport.consume<ConsumerProducerAppData>({
+        appData: {
+          routerId: appData.routerId,
+          timestamp: Date.now(),
+          transportId,
+        },
+        producerId,
+        rtpCapabilities,
+      });
+      transport.appData.direction = 'recv';
 
-    return consumer;
+      return consumer;
+    }, `Failed to create consumer for producer ${producerId}`);
   }
 
   /**
@@ -533,20 +572,22 @@ export class MediasoupService {
    * @returns A promise that resolves to the initialized uplink Producer instance.
    */
   async createProducer(transportId: TransportId, kind: types.MediaKind, rtpParameters: types.RtpParameters): Promise<Producer> {
-    const transport = this.getTransportById(transportId);
-    const { appData } = transport;
-    const producer = await transport.produce<ConsumerProducerAppData>({
-      kind,
-      rtpParameters,
-      appData: {
-        routerId: appData.routerId,
-        timestamp: Date.now(),
-        transportId,
-      },
-    });
-    transport.appData.direction = 'send';
+    return this.safeCall(async () => {
+      const transport = this.getTransportById(transportId);
+      const { appData } = transport;
+      const producer = await transport.produce<ConsumerProducerAppData>({
+        kind,
+        rtpParameters,
+        appData: {
+          routerId: appData.routerId,
+          timestamp: Date.now(),
+          transportId,
+        },
+      });
+      transport.appData.direction = 'send';
 
-    return producer;
+      return producer;
+    }, `Failed to create producer on transport ${transportId}`);
   }
 
   /**
@@ -585,16 +626,18 @@ export class MediasoupService {
    * @throws {MediasoupException} If the transport is not found or if the DataConsumer initialization fails.
    */
   async createDataConsumer(transportId: TransportId, transportOptions: DataConsumerOptions) {
-    const transport = this.getTransportById(transportId);
-    const dataConsumer = await transport.consumeData<RouterResourceAppData>({
-      ...transportOptions,
-      appData: {
-        routerId: transport.appData.routerId,
-        timestamp: Date.now(),
-      },
-    });
+    return this.safeCall(async () => {
+      const transport = this.getTransportById(transportId);
+      const dataConsumer = await transport.consumeData<RouterResourceAppData>({
+        ...transportOptions,
+        appData: {
+          routerId: transport.appData.routerId,
+          timestamp: Date.now(),
+        },
+      });
 
-    return dataConsumer;
+      return dataConsumer;
+    }, `Failed to create data consumer on transport ${transportId}`);
   }
 
   /**
@@ -633,16 +676,18 @@ export class MediasoupService {
    * @throws {MediasoupException} If the transport with the given ID cannot be found or if creation fails.
    */
   async createDataProducer(transportId: TransportId, transportOptions?: DataProducerOptions) {
-    const transport = this.getTransportById(transportId);
-    const dataProducer = await transport.produceData<RouterResourceAppData>({
-      ...transportOptions,
-      appData: {
-        routerId: transport.appData.routerId,
-        timestamp: Date.now(),
-      },
-    });
+    return this.safeCall(async () => {
+      const transport = this.getTransportById(transportId);
+      const dataProducer = await transport.produceData<RouterResourceAppData>({
+        ...transportOptions,
+        appData: {
+          routerId: transport.appData.routerId,
+          timestamp: Date.now(),
+        },
+      });
 
-    return dataProducer;
+      return dataProducer;
+    }, `Failed to create data producer on transport ${transportId}`);
   }
 
   /**
@@ -682,16 +727,18 @@ export class MediasoupService {
    * @throws {MediasoupException} If no Router is found matching the provided ID.
    */
   async createActiveSpeakerObserver(routerId: RouterId, interval?: number) {
-    const router = this.getRouterById(routerId);
-    const activeSpeakerObserver = await router.createActiveSpeakerObserver<RouterResourceAppData>({
-      appData: {
-        routerId,
-        timestamp: Date.now(),
-      },
-      interval,
-    });
+    return this.safeCall(async () => {
+      const router = this.getRouterById(routerId);
+      const activeSpeakerObserver = await router.createActiveSpeakerObserver<RouterResourceAppData>({
+        appData: {
+          routerId,
+          timestamp: Date.now(),
+        },
+        interval,
+      });
 
-    return activeSpeakerObserver;
+      return activeSpeakerObserver;
+    }, `Failed to create active speaker observer on router ${routerId}`);
   }
 
   /**
@@ -703,16 +750,18 @@ export class MediasoupService {
    * @throws {MediasoupException} If no Router is found matching the provided ID.
    */
   async createAudioLevelObserver(routerId: RouterId, options?: Omit<types.AudioLevelObserverOptions, 'appData'>) {
-    const router = this.getRouterById(routerId);
-    const audioLevelObserver = await router.createAudioLevelObserver<RouterResourceAppData>({
-      ...options,
-      appData: {
-        routerId,
-        timestamp: Date.now(),
-      },
-    });
+    return this.safeCall(async () => {
+      const router = this.getRouterById(routerId);
+      const audioLevelObserver = await router.createAudioLevelObserver<RouterResourceAppData>({
+        ...options,
+        appData: {
+          routerId,
+          timestamp: Date.now(),
+        },
+      });
 
-    return audioLevelObserver;
+      return audioLevelObserver;
+    }, `Failed to create audio level observer on router ${routerId}`);
   }
 
   /**

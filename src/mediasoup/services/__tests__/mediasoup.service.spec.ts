@@ -683,4 +683,46 @@ describe('MediasoupService', () => {
       expect(service.getRtpObserversByRouter('router-1', 'activespeaker')).toEqual([o2]);
     });
   });
+
+  describe('error handling (safeCall)', () => {
+    it('wraps a native failure from createWorker into a MediasoupException with the original error as cause', async () => {
+      const nativeError = new Error('native worker spawn failed');
+      mockedCreateWorker.mockRejectedValue(nativeError);
+
+      await expect(service.createWorker()).rejects.toMatchObject({
+        name: 'MediasoupException',
+        message: 'Failed to create worker',
+        cause: nativeError,
+      });
+    });
+
+    it('wraps a native failure from createRouter into a MediasoupException with the original error as cause', async () => {
+      const nativeError = new Error('router creation failed');
+      const mockWorker = createMockWorker(1000);
+      (mockWorker.createRouter as jest.Mock).mockRejectedValue(nativeError);
+      mockStore.workers.set(1000, mockWorker);
+
+      await expect(service.createRouter()).rejects.toMatchObject({
+        name: 'MediasoupException',
+        message: 'Failed to create router',
+        cause: nativeError,
+      });
+    });
+
+    it('does not double-wrap a MediasoupException already thrown internally (e.g. router not found)', async () => {
+      await expect(service.createWebRtcTransport('missing-router')).rejects.toMatchObject({
+        name: 'MediasoupException',
+        message: 'Router with ID missing-router not found',
+        cause: undefined,
+      });
+    });
+
+    it('applies options.exceptionFactory to transform the exception before it is thrown', async () => {
+      const nativeError = new Error('native worker spawn failed');
+      mockedCreateWorker.mockRejectedValue(nativeError);
+      mockOptions.exceptionFactory = (exception) => new Error(`custom: ${exception.message}`);
+
+      await expect(service.createWorker()).rejects.toThrow('custom: Failed to create worker');
+    });
+  });
 });

@@ -81,7 +81,7 @@ export class MediasoupService {
     } catch (error) {
       const exception = error instanceof MediasoupException ? error : new MediasoupException(message, error);
 
-      throw this.options.exceptionFactory ? (this.options.exceptionFactory as (exc: MediasoupException) => Error)(exception) : exception;
+      throw this.options.exceptionFactory ? this.options.exceptionFactory(exception) : exception;
     }
   }
 
